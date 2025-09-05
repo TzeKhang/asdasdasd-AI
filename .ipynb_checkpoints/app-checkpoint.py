@@ -1,21 +1,27 @@
 import streamlit as st
 import pandas as pd
-
-# Import team members' modules (classes)
-# from module.popular import PopularRecommender
-# from module.rating import RatingRecommender
-# from module.genre import GenreRecommender
+from RevenueMovies import RevenueRecommender
 
 # Load MovieLens data
 movies = pd.read_csv("dataset/movies.csv")
 ratings = pd.read_csv("dataset/ratings.csv")
 
+# Initialize revenue recommender
+revenue_recommender = RevenueRecommender("dataset/RevenueMovies.csv")
+
 st.title("🎬 Movie Recommender System")
 
-option = st.selectbox("Choose a Recommendation Type", ["Top 5 Most-Selling Movies", "Top 5 Highest-Rated Movies", "Top 5 Movies by Genre"])
+option = st.selectbox(
+    "Choose a Recommendation Type",
+    [
+        "Top 5 Most-Selling Movies",
+        "Top 5 Highest-Rated Movies",
+        "Top 5 Movies by Genre",
+        "Revenue-Based Recommendations"
+    ]
+)
 
 if option == "Top 5 Most-Selling Movies":
-    # Count how many ratings each movie has = popularity
     sales = ratings['movieId'].value_counts().reset_index()
     sales.columns = ['movieId', 'sales_count']
     top_sales = sales.merge(movies, on='movieId')
@@ -39,3 +45,22 @@ elif option == "Top 5 Movies by Genre":
         genre_rated = genre_rated.sort_values(by='rating', ascending=False)
         st.subheader(f"Top 5 {genre} Movies")
         st.dataframe(genre_rated[['title', 'genres', 'rating']].head(5))
+
+elif option == "Revenue-Based Recommendations":
+    st.subheader("💰 Revenue-Based Movie Recommender")
+
+    # Let user pick a movie
+    random_movies = revenue_recommender.get_random_movies(20)
+    selected_movie = st.selectbox(
+        "Pick a movie you watched:",
+        random_movies['title'].values
+    )
+
+    if selected_movie:
+        recs, selected_rev = revenue_recommender.recommend_by_revenue(selected_movie, tolerance=0.3, top_n=5)
+        
+        st.markdown(f"🎬 Since you watched **{selected_movie}** (Revenue: ${selected_rev:,}), you might also like:")
+        if not recs.empty:
+            st.dataframe(recs[['title', 'revenue']])
+        else:
+            st.info("⚠️ No similar revenue movies found.")
