@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 from RevenueMovies import RevenueRecommender
 
+
 # Load MovieLens data
 movies = pd.read_csv("dataset/movies.csv")
 ratings = pd.read_csv("dataset/ratings.csv")
