@@ -7,7 +7,7 @@ movies = pd.read_csv("dataset/movies.csv")
 ratings = pd.read_csv("dataset/ratings.csv")
 
 # Initialize revenue recommender
-revenue_recommender = RevenueRecommender("RevenueMovies.csv")
+revenue_recommender = RevenueRecommender("dataset/RevenueMovies.csv")
 
 st.title("🎬 Movie Recommender System")
 
